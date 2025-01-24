@@ -1,0 +1,6 @@
+@Deepin.Presence.API_HostAddress = http://localhost:5183
+
+GET {{Deepin.Presence.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
