@@ -1,15 +1,14 @@
+using Deepin.Presence.API.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// builder.WebHost.UseUrls("http://*:5000");
 
-builder.Services.AddControllers();
+builder.AddApplicationService();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-app.UseAuthorization();
-
-app.MapControllers();
+app.UseApplicationService();
 
 app.Run();

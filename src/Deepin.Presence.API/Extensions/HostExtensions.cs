@@ -1,64 +1,60 @@
-﻿using Deepin.Infrastructure.Extensions;
+﻿using Deepin.Infrastructure.Caching;
+using Deepin.Presence.API.Application.Services;
+using Deepin.Presence.API.Hubs;
 using Deepin.ServiceDefaults.Extensions;
-using Deepin.Storage.API.Application.Services;
-using Deepin.Storage.API.Infrastructure;
-using Deepin.Storage.API.Infrastructure.Entitites;
-using Deepin.Storage.API.Infrastructure.FileStorage;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
-namespace Deepin.Storage.API.Extensions;
+namespace Deepin.Presence.API.Extensions;
 
 public static class HostExtensions
 {
     public static WebApplicationBuilder AddApplicationService(this WebApplicationBuilder builder)
     {
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("DefaultConnection");
         builder.AddServiceDefaults();
         builder.Services
-        .AddStorageDbContext(connectionString)
-        .AddMigration<StorageDbContext>()
+        .AddDefaultCache(new RedisCacheOptions
+        {
+            ConnectionString = builder.Configuration.GetConnectionString("RedisConnection") ?? throw new ArgumentNullException("RedisConnection")
+        })
         .AddDefaultUserContexts()
-        .AddFileStorage(builder.Configuration);
+        .AddCustomSignalR(builder.Configuration);
 
+        builder.Services.AddScoped<IPresenceService, PresenceService>();
         return builder;
     }
     public static WebApplication UseApplicationService(this WebApplication app)
     {
         app.UseServiceDefaults();
+        app.MapHub<PresencesHub>("/hub/presences");
 
         app.MapGet("/api/about", () => new
         {
-            Name = "Deepin.Storage.API",
+            Name = "Deepin.Presence.API",
             Version = "1.0.0",
             DeepinEnv = app.Configuration["DEEPIN_ENV"],
             app.Environment.EnvironmentName
         });
         return app;
     }
-    private static IServiceCollection AddStorageDbContext(this IServiceCollection services, string connectionString)
+    private static IServiceCollection AddCustomSignalR(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<StorageDbContext>(options =>
+        var redisConnection = configuration.GetConnectionString("RedisConnection");
+        if (!string.IsNullOrEmpty(redisConnection))
         {
-            options.UseNpgsql(connectionString);
-        });
-        return services;
-    }
-    private static IServiceCollection AddFileStorage(this IServiceCollection services, IConfiguration configuration)
-    {
-        var storageProvider = configuration.GetSection("Storage").GetValue<StorageProvider>("Provider");
-        switch (storageProvider)
-        {
-            case StorageProvider.Local:
-                services.Configure<LocalFileStorageOptions>(configuration.GetSection("Storage"));
-                services.AddScoped<IFileStorage, LocalFileStorage>();
-                break;
-            case StorageProvider.AmazonS3:
-                services.AddScoped<IFileStorage, S3FileStorage>();
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(storageProvider), storageProvider, null);
+            services.AddDataProtection(opts =>
+            {
+                opts.ApplicationDiscriminator = "Deepin.Presence.API";
+            })
+             .PersistKeysToStackExchangeRedis(ConnectionMultiplexer.Connect(redisConnection), "Deepin.Presence.API.DataProtection.Keys");
+
+            services.AddSignalR().AddStackExchangeRedis(redisConnection, options => { });
         }
-        services.AddScoped<IFileService, FileService>();
+        else
+        {
+            services.AddSignalR();
+        }
         return services;
     }
 }

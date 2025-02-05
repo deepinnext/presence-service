@@ -6,6 +6,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1AB79718-44AB-4263-A278-BC181D3E1F00}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution items", "{3D17995B-A69D-42AA-B90F-9E21D9FBD53E}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+		LICENSE.txt = LICENSE.txt
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deepin.Presence.API", "src\Deepin.Presence.API\Deepin.Presence.API.csproj", "{453AC969-FF77-42B2-9C04-9872BE9FA721}"
 EndProject
