@@ -3,7 +3,7 @@ using Deepin.Presence.API.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// builder.WebHost.UseUrls("http://*:5000");
+builder.WebHost.UseUrls("http://*:5000");
 
 builder.AddApplicationService();
 

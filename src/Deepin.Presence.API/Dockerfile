@@ -4,7 +4,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
+EXPOSE 5000
 
 
 # This stage is used to build the service project
@@ -14,7 +14,7 @@ WORKDIR /src
 COPY ["src/Deepin.Presence.API/Deepin.Presence.API.csproj", "src/Deepin.Presence.API/"]
 RUN dotnet restore "./src/Deepin.Presence.API/Deepin.Presence.API.csproj"
 COPY . .
-WORKDIR "/src/src/Deepin.Presence.API"
+WORKDIR "src/Deepin.Presence.API"
 RUN dotnet build "./Deepin.Presence.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
