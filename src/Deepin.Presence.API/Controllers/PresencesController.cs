@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Deepin.Presence.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     [Authorize]
     public class PresencesController(IUserContext userContext, IPresenceService presenceService) : ControllerBase
@@ -18,6 +18,16 @@ namespace Deepin.Presence.API.Controllers
         public async Task<ActionResult<UserPresence>> GetAsync()
         {
             var presence = await _presenceService.GetUserPresenceAsync(_userContext.UserId);
+            if (presence == null)
+            {
+                return NoContent();
+            }
+            return Ok(presence);
+        }
+        [HttpGet("{userId}")]
+        public async Task<ActionResult<IEnumerable<UserPresence>>> GetAsync(string userId)
+        {
+            var presence = await _presenceService.GetUserPresenceAsync(userId);
             if (presence == null)
             {
                 return NoContent();
