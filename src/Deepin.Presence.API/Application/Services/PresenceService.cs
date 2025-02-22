@@ -44,7 +44,7 @@ public class PresenceService(ICacheManager cacheManager) : IPresenceService
 
     public async Task SetUserPresenceAsync(string userId, UserPresence presence)
     {
-        await _cacheManager.SetAsync(userId, presence, 60 * 24 * 7);
+        await _cacheManager.SetAsync(userId, presence,TimeSpan.FromDays(7));
     }
 
 }
