@@ -20,7 +20,7 @@ namespace Deepin.Presence.API.Controllers
             var presence = await _presenceService.GetUserPresenceAsync(_userContext.UserId);
             if (presence == null)
             {
-                return NotFound();
+                return NoContent();
             }
             return Ok(presence);
         }
@@ -28,11 +28,7 @@ namespace Deepin.Presence.API.Controllers
         public async Task<ActionResult<IEnumerable<UserPresence>>> GetAsync(string[] userIds)
         {
             var presences = await _presenceService.GetUsersPresenceAsync(userIds);
-            if (presences == null)
-            {
-                return NotFound();
-            }
-            return Ok(presences);
+            return Ok(presences ?? []);
         }
         [HttpPost("status")]
         public async Task<ActionResult> UpdateStatusAsync([FromForm] CustomStatusRequest request)
