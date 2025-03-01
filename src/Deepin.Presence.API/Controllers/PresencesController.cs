@@ -35,9 +35,9 @@ namespace Deepin.Presence.API.Controllers
             return Ok(presence);
         }
         [HttpGet("batch")]
-        public async Task<ActionResult<IEnumerable<UserPresence>>> GetAsync(string[] userIds)
+        public async Task<ActionResult<IEnumerable<UserPresence>>> GetAsync([FromQuery]string[] ids)
         {
-            var presences = await _presenceService.GetUsersPresenceAsync(userIds);
+            var presences = await _presenceService.GetUsersPresenceAsync(ids);
             return Ok(presences ?? []);
         }
         [HttpPost("status")]
